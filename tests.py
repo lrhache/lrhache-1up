@@ -179,11 +179,11 @@ class MockModel01(schema.BaseModel):
 
 
 class MockSearchModel01(schema.BaseModel):
-    index = ['name.given', 'name.family', 'address.street.name']
+    index = ['name.given', 'name.family']
 
 
 class MockSearchModel02(schema.BaseModel):
-    index = ['name.given', 'name.family', 'address.street.name']
+    index = ['name.given', 'name.family']
 
 
 class MockReferenceParent(schema.BaseModel):
