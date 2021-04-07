@@ -109,7 +109,7 @@ def search(resource_type: str, terms: str, nocache: bool = False) -> None:
                 p = results[i-1]
                 print(f"{i}) {p.get_fullname()} ({p.id})")
 
-            while True:
+            while True and nb > 0:
                 q = f'Type your choice [1-{i}] (ENTER to exit): '
                 selected = input(q)
 
