@@ -1,4 +1,4 @@
-from typing import TypeVar, Union, Generator
+from typing import TypeVar, Union, Generator, Type, cast
 from collections import defaultdict
 from dataclasses import dataclass, field
 
@@ -66,14 +66,16 @@ class MetaBaseModel(type):
     # keep track of back references if the instance is not created yet
     _back_references: dict = defaultdict(list)
 
-    def __new__(metacls, clsname: str, bases: list, classdict: dict) -> T:
+    def __new__(metacls: Type['MetaBaseModel'],
+                clsname: str, bases: tuple,
+                classdict: dict) -> 'MetaBaseModel':
         cls = super().__new__(metacls, clsname, bases, classdict)
         metacls.registered_class[clsname] = {
             'self': cls,
             'references': classdict.get('references')
         }
 
-        return cls
+        return cast(MetaBaseModel, cls)
 
     def __call__(cls, *args: list, **kwargs: dict) -> T:
         # Get the modelname and registered configs
@@ -98,7 +100,7 @@ class MetaBaseModel(type):
             del MetaBaseModel._back_references[document_id]
 
         if registered_class['references']:
-            MetaBaseModel.get_references(
+            MetaBaseModel.set_references(
                 instance, kwargs['data'], registered_class['references'])
 
         MetaBaseModel.index_id[document_id] = instance
@@ -125,12 +127,12 @@ class MetaBaseModel(type):
 
             terms += values
 
-        terms = ' '.join([str(w).lower() for w in set(terms)])
-        MetaBaseModel.index_terms.append((instance, terms))
+        index_terms = ' '.join([str(w).lower() for w in {terms}])
+        MetaBaseModel.index_terms.append((instance, index_terms))
 
     @classmethod
-    def get_references(cls, instance: T,
-                       data: dict, references: list) -> list[T]:
+    def set_references(cls, instance: T,
+                       data: dict, references: list) -> None:
         """ Set the back references for an instance """
 
         for key_name in references:
@@ -158,7 +160,7 @@ class MetaBaseModel(type):
                     # and load the references once the instance is initated
                     cls._back_references[document_id].append(instance)
 
-    def get(cls, document_id: str) -> T:
+    def get(cls, document_id: str) -> Union[T, None]:
         """ Get a single document by ID """
         document_id = str(document_id).lower()
 
@@ -192,7 +194,7 @@ class MetaBaseModel(type):
                 yield instance
 
     @staticmethod
-    def find_key(d: Union[dict, list], keys: list) -> T:
+    def find_key(d: Union[dict, list], keys: list) -> Union[list[T], T, None]:
         """ Traverse a set of keys and return the value
 
         Example:
@@ -204,7 +206,7 @@ class MetaBaseModel(type):
             data (d) = {'a': {'b': {'c': 1}}
             return 1
         """
-        if len(keys) <= 1 or not d.get(keys[0]):
+        if len(keys) <= 1 or (isinstance(d, dict) and not d.get(keys[0])):
             return d.get(keys[0]) if isinstance(d, dict) else None
 
         if isinstance(d[keys[0]], list):
@@ -226,6 +228,8 @@ class MetaBaseModel(type):
             result = MetaBaseModel.find_key(d[keys[0]], keys[1:])
             if result is not None:
                 return result
+
+            return None
 
 
 @dataclass
@@ -256,7 +260,7 @@ class BaseModel(metaclass=MetaBaseModel):
 
         return references | _references
 
-    def get_connections(self) -> set:
+    def get_connections(self) -> defaultdict[str, set]:
         connections = defaultdict(set)
 
         all_connections = self.traverse_references(self._references)

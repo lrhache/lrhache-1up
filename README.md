@@ -68,16 +68,25 @@ pip install -r requirements.txt
 Run tests:
 ```bash
 python3 tests.py
+docker run -it --rm lrhache-1up-challenge python3 tests.py
+```
+
+MyPy:
+```bash
+mypy app.py
+docker run -it --rm lrhache-1up-challenge mypy app.py
 ```
 
 Search for any patients:
 ```bash
 python3 app.py search patient <your query>
+docker run -it --rm lrhache-1up-challenge python3 app.py search patient <your query>
 ```
 
 Search for any practitioner:
 ```bash
 python3 app.py search practitioner <your query>
+docker run -it --rm lrhache-1up-challenge python3 app.py search practitioner <your query>
 ```
 
 I would suggest a few patient searches:

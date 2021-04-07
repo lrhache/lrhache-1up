@@ -41,7 +41,7 @@ CACHE_FOLDER = './cache'
 S3_BUCKET_NAME = '1up-coding-challenge-patients'
 
 
-def load_data(drop_cache: bool = False) -> list:
+def load_data(drop_cache: bool = False) -> dict[str, list[dict]]:
     """ Returns a list of documents from cache or from S3 """
 
     cache_file = CACHE_FOLDER + '/resources.json'
