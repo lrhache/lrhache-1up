@@ -4,36 +4,37 @@
 
 I had 3 considerations before starting this project:
 1. How the documents would be organized, manipulated and retrieved
-2. How the documents would reference each others (ability to find parents and children documents)
+2. How the documents would reference each others (ability to find parent and child documents)
 3. Reusability and extendability of the data models
 
 #### Data structure
-I have opted to load the documents into dataclasses model as this would be the closest python datastructure mimicking modern database ORM data model.
+I have opted to load the documents into dataclass models as this would be the closest python datastructure mimicking modern database ORM data modeling.
 
 This data structure creates the effect of a virtual object database that can be used and accessed intuitively.
 
 With the use of the metaclass applied on the data model, we can intercept the creation of new objects,
-create the search index and finding the back references.
+create the search index and storing the back references.
 
-Each models can be extended easily as seen with the `Patient` and `Practitioner` models with the `get_fullname` method.
+Each models can be easily extended as seen with the `Patient` and `Practitioner` models at the `get_fullname` method.
 
 #### Foreign relations
 During the document initialization, if there is any references to foreign documents, we create a back reference to those objects and store the references also into the created model.
 
 This simple process allow a quick access to referenced documents with little overhead.
 
-I have also implemented a dotkey notation for increase readability of the document models. This notation allow the reader to quickly understand the values accessed. IE: `index = ['name.given', 'name.family']`
+I have also implemented a dotkey notation for increased readability of the document indexes and references. This notation allow the reader to quickly understand the values accessed. IE: `index = ['name.given', 'name.family']`
 
 #### Search
-As a proof of concept, I initialized the practitioner search as well by simply adding the `index` attribute to the `Practitioner` model. Working the same way as the patient search, you can also access an aggregated count of documents related to the selected practitioner.
+As a proof of concept, I initialized the practitioner search as well by simply adding the `index` attribute to the `Practitioner` model. Working the same way as the `Patient` search, you can also access an aggregated count of documents related to the selected practitioner.
 
-When I can, I like to remove any restrictions that have no obvious reason to exists. For this reason, I wrote the script to allow any search terms without having to specify the type (no --firstname or --id flags needed). If your search yield more than one document, you will be prompt with suggestions.
+When I can, I like to remove any restrictions for the user that have no obvious reason to exists. For this reason, I wrote the script to allow any search terms without having to specify the field (no --firstname or --id flags needed). If your search yield more than one document, you will be prompted with suggestions.
 
 #### Tests
 I wrote a few unit test cases, they are not exhaustive but they represent well the major parts of the system (load data, search, reference backlinking).
 
 Overall, this was a fun project with the hope it demonstrate well my personality as a SWE!
 
+Happy review,
 Louis.
 
 
