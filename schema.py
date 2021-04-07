@@ -1,6 +1,6 @@
-from typing import TypeVar, Union, Generator, Type, cast
 from collections import defaultdict
 from dataclasses import dataclass, field
+from typing import TypeVar, Union, Generator, Type, cast
 
 from exceptions import DuplicateDocument, ResourceNotDefined
 
@@ -127,7 +127,7 @@ class MetaBaseModel(type):
 
             terms += values
 
-        index_terms = ' '.join([str(w).lower() for w in {terms}])
+        index_terms = ' '.join([str(w).lower() for w in set(terms)])
         MetaBaseModel.index_terms.append((instance, index_terms))
 
     @classmethod
@@ -224,12 +224,11 @@ class MetaBaseModel(type):
 
             return results
 
-        else:
-            result = MetaBaseModel.find_key(d[keys[0]], keys[1:])
-            if result is not None:
-                return result
+        result = MetaBaseModel.find_key(d[keys[0]], keys[1:])
+        if result is not None:
+            return result
 
-            return None
+        return None
 
 
 @dataclass
